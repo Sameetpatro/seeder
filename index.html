@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Humsafar Seeder - Site</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Create Heritage Site</h1>
+
+<section>
+  <input id="siteName" placeholder="Site Name" required>
+  <input id="latitude" placeholder="Latitude" required>
+  <input id="longitude" placeholder="Longitude" required>
+  <input id="radius" placeholder="Radius (meters)" required>
+  <input id="rating" placeholder="Rating">
+  <input id="helpline" placeholder="Helpline Number">
+  <input id="video" placeholder="Site Video URL">
+  <textarea id="summary" placeholder="Summary"></textarea>
+  <textarea id="history" placeholder="History"></textarea>
+  <textarea id="funFacts" placeholder="Fun Facts"></textarea>
+</section>
+
+<h3>Site Images</h3>
+<div id="siteImages"></div>
+<button onclick="addSiteImage()">+ Add Site Image</button>
+
+<hr>
+
+<h2>Nodes</h2>
+<div id="nodes"></div>
+<button onclick="addNode()">+ Add Node</button>
+
+<br><br>
+<button onclick="goToLandmarks()">Next → Landmarks Nearby</button>
+
+<script src="script.js"></script>
+</body>
+</html>
