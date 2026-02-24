@@ -1,5 +1,4 @@
-const backendURL = "https://humsafar-backend-1s3r.onrender.com/admin/seed-bulk";
-const ADMIN_SECRET = "your_secret_here";
+const backendURL = "https://humsafar-backend-5u74.onrender.com/admin/seed-bulk";
 
 /* ---------------- SITE IMAGES ---------------- */
 
@@ -50,11 +49,10 @@ function goToLandmarks() {
   }
 
   localStorage.setItem("seedData", JSON.stringify(result.payload));
-  window.location.href = "landmark.html";   // ← fixed filename
+  window.location.href = "landmark.html";
 }
 
 function collectSiteData() {
-
   const siteNameEl  = document.getElementById("siteName");
   const latitudeEl  = document.getElementById("latitude");
   const longitudeEl = document.getElementById("longitude");
@@ -76,9 +74,7 @@ function collectSiteData() {
     return { valid: false, error: "At least one node is required." };
   }
 
-  const kingNodes = nodeCards.filter(card =>
-    card.querySelector(".king").checked
-  );
+  const kingNodes = nodeCards.filter(card => card.querySelector(".king").checked);
 
   if (kingNodes.length !== 1) {
     return { valid: false, error: "Exactly ONE King Node must be selected." };
@@ -93,7 +89,6 @@ function collectSiteData() {
     const images      = [...card.querySelectorAll(".nodeImages input")]
       .map(i => i.value)
       .filter(v => v !== "");
-
     const isKing = card.querySelector(".king").checked;
 
     formattedNodes.push({
@@ -116,12 +111,12 @@ function collectSiteData() {
         latitude:  parseFloat(latitudeEl.value),
         longitude: parseFloat(longitudeEl.value),
         radius:    parseInt(radiusEl.value),
-        rating:    ratingEl.value    ? parseFloat(ratingEl.value) : null,
-        helpline:  helplineEl.value  || null,
-        video_url: videoEl.value     || null,
-        summary:   summaryEl.value   || null,
-        history:   historyEl.value   || null,
-        fun_facts: funFactsEl.value  || null,
+        rating:    ratingEl.value   ? parseFloat(ratingEl.value) : null,
+        helpline:  helplineEl.value || null,
+        video_url: videoEl.value    || null,
+        summary:   summaryEl.value  || null,
+        history:   historyEl.value  || null,
+        fun_facts: funFactsEl.value || null,
         images:    [...document.querySelectorAll("#siteImages input")]
           .map(i => i.value)
           .filter(v => v !== "")
@@ -155,11 +150,10 @@ function collectLandmarks(id) {
       latitude:  parseFloat(inputs[1].value),
       longitude: parseFloat(inputs[2].value)
     };
-  }).filter(l => l.name); // skip empty cards
+  }).filter(l => l.name);
 }
 
 async function submitAll() {
-
   const stored = localStorage.getItem("seedData");
 
   if (!stored) {
@@ -178,10 +172,7 @@ async function submitAll() {
   try {
     const response = await fetch(backendURL, {
       method: "POST",
-      headers: {
-        "Content-Type":   "application/json",
-        "x-admin-secret": ADMIN_SECRET
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(seedData)
     });
 
@@ -194,11 +185,10 @@ async function submitAll() {
     const result = await response.json();
     alert(`✅ Success! Site "${result.site_name}" created with ID ${result.site_id}`);
     console.log(result);
-
     localStorage.removeItem("seedData");
 
   } catch (error) {
-    alert("Network error submitting data. Check console.");
+    alert("Network error. Check console.");
     console.error(error);
   }
 }
