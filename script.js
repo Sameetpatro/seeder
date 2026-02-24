@@ -50,13 +50,23 @@ function goToLandmarks() {
   }
 
   localStorage.setItem("seedData", JSON.stringify(result.payload));
-  window.location.href = "landmarks.html";
+  window.location.href = "landmark.html";   // ← fixed filename
 }
 
 function collectSiteData() {
 
-  // Basic site validation
-  if (!siteName.value || !latitude.value || !longitude.value || !radius.value) {
+  const siteNameEl  = document.getElementById("siteName");
+  const latitudeEl  = document.getElementById("latitude");
+  const longitudeEl = document.getElementById("longitude");
+  const radiusEl    = document.getElementById("radius");
+  const ratingEl    = document.getElementById("rating");
+  const helplineEl  = document.getElementById("helpline");
+  const videoEl     = document.getElementById("video");
+  const summaryEl   = document.getElementById("summary");
+  const historyEl   = document.getElementById("history");
+  const funFactsEl  = document.getElementById("funFacts");
+
+  if (!siteNameEl.value || !latitudeEl.value || !longitudeEl.value || !radiusEl.value) {
     return { valid: false, error: "Please fill all required site fields." };
   }
 
@@ -78,24 +88,23 @@ function collectSiteData() {
   let sequenceCounter = 1;
 
   nodeCards.forEach(card => {
-
-    const inputs = card.querySelectorAll("input");
+    const inputs      = card.querySelectorAll("input:not(.king)");
     const description = card.querySelector("textarea").value;
-    const images = [...card.querySelectorAll(".nodeImages input")]
+    const images      = [...card.querySelectorAll(".nodeImages input")]
       .map(i => i.value)
       .filter(v => v !== "");
 
     const isKing = card.querySelector(".king").checked;
 
     formattedNodes.push({
-      name: inputs[0].value,
-      latitude: parseFloat(inputs[1].value),
-      longitude: parseFloat(inputs[2].value),
-      video_url: inputs[3].value || null,
-      sequence: isKing ? 0 : sequenceCounter++,
-      qr: inputs[0].value.trim().replace(/\s+/g, "_").toUpperCase(),
+      name:        inputs[0].value,
+      latitude:    parseFloat(inputs[1].value),
+      longitude:   parseFloat(inputs[2].value),
+      video_url:   inputs[3].value || null,
+      sequence:    isKing ? 0 : sequenceCounter++,
+      qr:          inputs[0].value.trim().replace(/\s+/g, "_").toUpperCase(),
       description: description,
-      images: images
+      images:      images
     });
   });
 
@@ -103,17 +112,17 @@ function collectSiteData() {
     valid: true,
     payload: {
       site: {
-        name: siteName.value,
-        latitude: parseFloat(latitude.value),
-        longitude: parseFloat(longitude.value),
-        radius: parseInt(radius.value),
-        rating: rating.value ? parseFloat(rating.value) : null,
-        helpline: helpline.value || null,
-        video_url: video.value || null,
-        summary: summary.value || null,
-        history: history.value || null,
-        fun_facts: funFacts.value || null,
-        images: [...document.querySelectorAll("#siteImages input")]
+        name:      siteNameEl.value,
+        latitude:  parseFloat(latitudeEl.value),
+        longitude: parseFloat(longitudeEl.value),
+        radius:    parseInt(radiusEl.value),
+        rating:    ratingEl.value    ? parseFloat(ratingEl.value) : null,
+        helpline:  helplineEl.value  || null,
+        video_url: videoEl.value     || null,
+        summary:   summaryEl.value   || null,
+        history:   historyEl.value   || null,
+        fun_facts: funFactsEl.value  || null,
+        images:    [...document.querySelectorAll("#siteImages input")]
           .map(i => i.value)
           .filter(v => v !== "")
       },
@@ -142,11 +151,11 @@ function collectLandmarks(id) {
   return [...document.querySelectorAll(`#${id} .card`)].map(card => {
     const inputs = card.querySelectorAll("input");
     return {
-      name: inputs[0].value,
-      latitude: parseFloat(inputs[1].value),
+      name:      inputs[0].value,
+      latitude:  parseFloat(inputs[1].value),
       longitude: parseFloat(inputs[2].value)
     };
-  });
+  }).filter(l => l.name); // skip empty cards
 }
 
 async function submitAll() {
@@ -161,30 +170,35 @@ async function submitAll() {
   const seedData = JSON.parse(stored);
 
   seedData.landmarks = {
-    monuments: collectLandmarks("monuments"),
+    monuments:   collectLandmarks("monuments"),
     restaurants: collectLandmarks("restaurants"),
-    hotels: collectLandmarks("hotels")
+    hotels:      collectLandmarks("hotels")
   };
 
   try {
     const response = await fetch(backendURL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":   "application/json",
         "x-admin-secret": ADMIN_SECRET
       },
       body: JSON.stringify(seedData)
     });
 
-    const result = await response.json();
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      alert(`Error ${response.status}: ${err.detail || response.statusText}`);
+      return;
+    }
 
-    alert("Success!");
+    const result = await response.json();
+    alert(`✅ Success! Site "${result.site_name}" created with ID ${result.site_id}`);
     console.log(result);
 
     localStorage.removeItem("seedData");
 
   } catch (error) {
-    alert("Error submitting data.");
+    alert("Network error submitting data. Check console.");
     console.error(error);
   }
 }
